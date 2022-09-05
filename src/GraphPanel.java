@@ -24,8 +24,8 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
     static CheckBox toSlice = new CheckBox(new Point(30, 10), new Point(40, 20));
     static CheckBox menuButton = new CheckBox(new Point(WIDTH/2-30, HEIGHT/2+30), new Point(WIDTH/2+30, HEIGHT/2+60));
     static DropDown colorButton = new DropDown(new Point(WIDTH-50, 10), new Point(WIDTH-10,30), 2);
-    static final int CENTER_SIZE = 8;
-    static Dragger centerPoint = new Dragger(new Point(250, 400), CENTER_SIZE);
+    static final int OG_CENTERPOINT_SIZE = 8;
+    static Dragger centerPoint = new Dragger(new Point(250, 400), OG_CENTERPOINT_SIZE);
     static double aAngle = 45;
     static double aAngleStart;
     static double bAngle = 20;
@@ -34,7 +34,7 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
     static Vector yVector = makeYVector(aAngle, bAngle);
     static final Point CENTER = new Point(250, 400);
     static int[][][] stats = new int[30][60][100]; // assists, rebound, points
-    static String playerName = "";
+    static String playerName = "Lebron James";
     static int[][][] colorArr = new int[10][10][3];
     static int colorNumber = 0;
 
@@ -334,8 +334,8 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         colorNumber = Math.abs(colorButton.value)-1;
         if (slice.contains(new Point(mouseClickedX, mouseClickedY)) && toSlice.value) {
             slice.setValue(new Point(mouseX, mouseY));
-        } else if(centerPoint.contains(new Point(mouseClickedX, mouseClickedY))){
-            centerPoint.value = CENTER_SIZE*2;
+        } else if(centerPoint.contains(new Point(mouseClickedX, mouseClickedY)) || centerPoint.value == OG_CENTERPOINT_SIZE*2){
+            centerPoint.value = OG_CENTERPOINT_SIZE*2;
         }else {
             state = "run";
         }
@@ -345,6 +345,8 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
     
     @Override
     public void mouseDragged(MouseEvent e) {
+        int oldX = mouseX;
+        int oldY = mouseY;
         mouseX = e.getX() - 5;
         mouseY = e.getY() - 30;
         if(state.equals("menu")){
@@ -353,9 +355,9 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
             if (slice.contains(new Point(mouseX, mouseY))) {
             // if (mouseY > slice.topLeft.Y && mouseY < slice.bottomRight.Y) {
                 slice.setValue(new Point(mouseX, mouseY));
-            }else if(centerPoint.value == CENTER_SIZE*2){
-                centerPoint.topLeft = new Point(mouseX, mouseY);
-                centerPoint.bottomRight = new Point(mouseX+CENTER_SIZE, mouseY+CENTER_SIZE);
+            }else if(centerPoint.value == OG_CENTERPOINT_SIZE*2){
+                centerPoint.topLeft = incrimentPoint(centerPoint.topLeft, mouseX-oldX, mouseY-oldY);
+                centerPoint.bottomRight = incrimentPoint(centerPoint.topLeft, OG_CENTERPOINT_SIZE, OG_CENTERPOINT_SIZE);
             }
             repaint();
         } else if (state.equals("run")) {
@@ -373,10 +375,15 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         // if(state.equals("adjust")){
         // repaint();
         // }
-        centerPoint.value = CENTER_SIZE;
+        if(!state.equals("menu")){
+            if(centerPoint.contains(new Point(mouseX-5, mouseY-5))){
+                centerPoint.value = OG_CENTERPOINT_SIZE;
+            }
+            if(centerPoint.value==OG_CENTERPOINT_SIZE){
+                state = "run";
+            }
+        }
         repaint();
-        if(!state.equals("menu"))
-            state = "run";
     }
 
     @Override
@@ -414,15 +421,28 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
             state = "run";
             playerName = temp;
             repaint();
+        }else if(e.getKeyCode() == KeyEvent.VK_SHIFT && state.equals("run")){
+            state = "adjust";
+            centerPoint.value = OG_CENTERPOINT_SIZE*2;
+            repaint();
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
+        if(e.getKeyCode() == KeyEvent.VK_SHIFT && state.equals("adjust")){
+            state = "run";
+            centerPoint.value = OG_CENTERPOINT_SIZE;
+            repaint();
+        }
     }
 
     public static void pause(int delay) {
         long start = System.currentTimeMillis();
         while(start >= System.currentTimeMillis() - delay); // do nothing
+    }
+
+    public static Point incrimentPoint(Point p, int x, int y){
+        return new Point(p.X+x, p.Y+y);
     }
 }
