@@ -9,8 +9,8 @@ import java.util.Scanner;
 import java.awt.*;
 
 //TODO 
-//color options
 //menu
+//fix stat creation from input
 //hover over for stats in slice view
 
 public class GraphPanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener {
@@ -24,6 +24,12 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
     static CheckBox toSlice = new CheckBox(new Point(30, 10), new Point(40, 20));
     static CheckBox menuButton = new CheckBox(new Point(WIDTH/2-30, HEIGHT/2+30), new Point(WIDTH/2+30, HEIGHT/2+60));
     static DropDown colorButton = new DropDown(new Point(WIDTH-50, 10), new Point(WIDTH-10,30), 2);
+    static CheckBox onePoint = new CheckBox(new Point(WIDTH-90, 40), new Point(WIDTH-80,50), true);
+    static CheckBox twoPoint = new CheckBox(new Point(WIDTH-70, 40), new Point(WIDTH-60,50), true);
+    static CheckBox threePoint = new CheckBox(new Point(WIDTH-50, 40), new Point(WIDTH-40,50), true);
+    static CheckBox fourPoint = new CheckBox(new Point(WIDTH-30, 40), new Point(WIDTH-20,50), true);
+    static CheckBox fivePoint = new CheckBox(new Point(WIDTH-10, 40), new Point(WIDTH,50), true);
+    static CheckBox[] boxes = {onePoint, twoPoint, threePoint, fourPoint, fivePoint};
     static final int OG_CENTERPOINT_SIZE = 8;
     static Dragger centerPoint = new Dragger(new Point(250, 400), OG_CENTERPOINT_SIZE);
     static double aAngle = 45;
@@ -52,6 +58,9 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         if(!state.equals("menu")){
             slice.draw(g);
             toSlice.draw(g);
+            for (CheckBox checkBox : boxes) {
+                checkBox.draw(g);
+            }
             colorButton.drawColor(g, colorArr);
             drawAxis(g, centerPoint.topLeft);
             centerPoint.draw(g);
@@ -66,13 +75,8 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
             for (int ast = stats.length-astOrder*stats.length-1+astOrder; (ast < stats.length && ast>=0); ast+=(2*astOrder-1)) {
                 for (int tbr = 0; tbr < stats[0].length; tbr++) {
                     for (int pts = stats[0][0].length-ptsOrder*stats[0][0].length-1+ptsOrder; (pts < stats[0][0].length && pts>=0); pts+=(2*ptsOrder-1)) {
-                        if (toSlice.value) {
-                            if (pts == slice.value.intValue()) {
-                                drawCube(g, new Cube(new Point3D(ast, pts, tbr), stats[ast][tbr][pts]), centerPoint.topLeft);
-                            }
-                        } else {
+                        if(!toSlice.value || pts == slice.value.intValue())
                             drawCube(g, new Cube(new Point3D(ast, pts, tbr), stats[ast][tbr][pts]), centerPoint.topLeft);
-                        }
                     }
                 }
             }
@@ -160,6 +164,22 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         if (c.colorValue == 0) {
             return;
         }
+        if(c.colorValue==1 && !onePoint.value){
+            return;
+        }
+        if(c.colorValue==2 && !twoPoint.value){
+            return;
+        }
+        if(c.colorValue==3 && !threePoint.value){
+            return;
+        }
+        if(c.colorValue==4 && !fourPoint.value){
+            return;
+        }
+        if(c.colorValue>=5 && !fivePoint.value){
+            return;
+        }
+
         int cv = c.colorValue;
         double red = colorArr[colorNumber][cv][0];
         double green = colorArr[colorNumber][cv][1];
@@ -308,6 +328,12 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         if (toSlice.contains(new Point(mouseClickedX, mouseClickedY))) {
             toSlice.toggle();
             repaint();
+        }
+        for (CheckBox checkBox : boxes) {
+            if (checkBox.contains(new Point(mouseClickedX, mouseClickedY))) {
+                checkBox.toggle();
+                repaint();
+            }
         }
         
     }
