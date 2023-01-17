@@ -12,5 +12,6 @@ public class SimulationRunner {
     f.add(p);
     f.pack();
     f.setVisible(true);
+    f.setExtendedState(JFrame.MAXIMIZED_BOTH); 
   }
 }

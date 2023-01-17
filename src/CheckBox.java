@@ -1,5 +1,7 @@
-import java.awt.Graphics;
-import java.awt.Color;
+// import java.awt.Graphics;
+// import java.awt.Graphics2D;
+// import java.awt.Color;
+import java.awt.*;
 
 public class CheckBox extends Button<Boolean>{
 
@@ -28,16 +30,23 @@ public class CheckBox extends Button<Boolean>{
     public void draw(Graphics g) {
         int width = bottomRight.X - topLeft.X;
         int height = bottomRight.Y - topLeft.Y;
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setStroke(new BasicStroke(3));
         g.setColor(Color.WHITE);
         g.drawRect(topLeft.X, topLeft.Y, width, height);
         if (value) {
-            g.setColor(Color.GREEN);
-            g.drawLine(topLeft.X + width / 4, topLeft.Y + height / 2, topLeft.X + width / 2, bottomRight.Y);
-            g.drawLine(topLeft.X + width / 2, bottomRight.Y, bottomRight.X + width / 4, topLeft.Y - height / 4);
-            g.drawLine(topLeft.X + width / 4 + 1, topLeft.Y + height / 2, topLeft.X + width / 2 + 1,
-                    bottomRight.Y);
-            g.drawLine(topLeft.X + width / 2 + 1, bottomRight.Y, bottomRight.X + width / 4 + 1, topLeft.Y - height / 4);
+            g.setColor(Color.RED);
+            g.drawLine(topLeft.X+2, topLeft.Y+2, topLeft.X+width-2, topLeft.Y+height-2);
+            g.drawLine(topLeft.X+width-2, topLeft.Y+2, topLeft.X+2, topLeft.Y+height-2);
         }
+        // if (value) {
+        //     g.setColor(Color.GREEN);
+        //     g.drawLine(topLeft.X + width / 4, topLeft.Y + height / 2, topLeft.X + width / 2, bottomRight.Y);
+        //     g.drawLine(topLeft.X + width / 2, bottomRight.Y, bottomRight.X + width / 4, topLeft.Y - height / 4);
+        //     g.drawLine(topLeft.X + width / 4 + 1, topLeft.Y + height / 2, topLeft.X + width / 2 + 1,
+        //             bottomRight.Y);
+        //     g.drawLine(topLeft.X + width / 2 + 1, bottomRight.Y, bottomRight.X + width / 4 + 1, topLeft.Y - height / 4);
+        // }
     }
 
     public void drawPlain(Graphics g) {

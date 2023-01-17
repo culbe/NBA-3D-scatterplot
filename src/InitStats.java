@@ -49,6 +49,11 @@ public class InitStats {
         String line;
         try {
             for (int i = 1990; i < 2023; i++) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 url = new URL("https://www.basketball-reference.com/players/" + URLid + "/gamelog/" + i);
                 System.out.println("Getting url of year: " + url.toString());
                 is = url.openStream(); // throws an IOException
@@ -89,7 +94,6 @@ public class InitStats {
                 if (is != null)
                     is.close();
             } catch (IOException ioe) {
-                // nothing to see here
             }
         }
     }

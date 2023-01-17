@@ -8,10 +8,11 @@ import java.io.File;
 import java.util.Scanner;
 import java.awt.*;
 
-//TODO 
-//menu
-//fix stat creation from input
-//hover over for stats in slice view
+/*TODO 
+-clean up menu
+-fix stat creation from input
+-hover over for stats in slice view
+*/
 
 public class GraphPanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener {
     static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -19,11 +20,12 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
     static final int WIDTH = screenSize.width;
     static final int HEIGHT = screenSize.height;
     static String state = "menu";
-    static int mouseClickedX, mouseClickedY, mouseX, mouseY = 2000;
+    static int mouseClickedX, mouseClickedY, mouseX, mouseY = 2000; //offscreen
+    //buttons and boxes
     static VerticalSlider slice = new VerticalSlider(new Point(0, 0), new Point(20, 200), 0, 100, 0);
     static CheckBox toSlice = new CheckBox(new Point(30, 10), new Point(40, 20));
     static CheckBox menuButton = new CheckBox(new Point(WIDTH/2-30, HEIGHT/2+30), new Point(WIDTH/2+30, HEIGHT/2+60));
-    static DropDown colorButton = new DropDown(new Point(WIDTH-50, 10), new Point(WIDTH-10,30), 2);
+    static DropDown colorButton = new DropDown(new Point(WIDTH-90, 10), new Point(WIDTH-10,30), 2);
     static CheckBox onePoint = new CheckBox(new Point(WIDTH-90, 40), new Point(WIDTH-80,50), true);
     static CheckBox twoPoint = new CheckBox(new Point(WIDTH-70, 40), new Point(WIDTH-60,50), true);
     static CheckBox threePoint = new CheckBox(new Point(WIDTH-50, 40), new Point(WIDTH-40,50), true);
@@ -32,30 +34,32 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
     static CheckBox[] boxes = {onePoint, twoPoint, threePoint, fourPoint, fivePoint};
     static final int OG_CENTERPOINT_SIZE = 8;
     static Dragger centerPoint = new Dragger(new Point(250, 400), OG_CENTERPOINT_SIZE);
+    //display variables
     static double aAngle = 45;
     static double aAngleStart;
     static double bAngle = 20;
     static double bAngleStart;
+
     static Vector xVector = makeXVector(aAngle, bAngle);
     static Vector yVector = makeYVector(aAngle, bAngle);
-    static final Point CENTER = new Point(250, 400);
+    static final Point CENTER = new Point(250, 400); //origin
     static int[][][] stats = new int[30][60][100]; // assists, rebound, points
-    static String playerName = "Lebron James";
-    static int[][][] colorArr = new int[10][10][3];
-    static int colorNumber = 0;
+    static String playerName = "Lebron James"; //player to display
+    static int[][][] colorArr = new int[10][10][3]; //array containing color scheme information
+    static int colorNumber = 0; //number for color scheme option
 
-    static Cube c = new Cube(new Point3D(), 10);
-
-    public GraphPanel() {
+    public GraphPanel() { //initalize panel
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        setBackground(Color.BLACK);
+        setBackground(Color.LIGHT_GRAY);
         initColorArr(colorArr);
     }
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+        g.setFont(new Font("Rockwell", Font.BOLD, 15));
         g.drawString("state: " + state, 20, 100);
         if(!state.equals("menu")){
+     
             slice.draw(g);
             toSlice.draw(g);
             for (CheckBox checkBox : boxes) {
@@ -68,6 +72,7 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
 
             // g.drawString("X: " + xVector.toString(), 100, 20);
             // g.drawString("Y: " + yVector.toString(), 100, 50);
+
             g.drawString("" + slice.value.intValue(), 20, 210);
             g.drawString(playerName, 300, 20);
             int astOrder = Math.min((int)(Math.cos(bAngle*3.14159/180.0)+1),1); // one in the front 4 octants, zero elsewhere            
@@ -81,12 +86,16 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
                 }
             }
         }else{
+            g.setFont(new Font("Rockwell", Font.BOLD, 40));
+            g.setColor(Color.BLACK);
+            g.drawString("Welcome to NBA Career grapher!", WIDTH/2-300, 300);
+            g.setFont(new Font("Rockwell", Font.BOLD, 15));
             g.drawString("menu", WIDTH/2, HEIGHT/2);
             menuButton.drawPlain(g);
             g.setColor(Color.WHITE);
             g.fillRect(WIDTH/2-100, HEIGHT/2-15, 200, 30);
             g.setColor((Color.RED));
-            g.setFont(new Font("Arial", Font.BOLD, 15));
+            g.setFont(new Font("Rockwell", Font.BOLD, 15));
             g.drawString(playerName, WIDTH/2-100, HEIGHT/2+10);
         }
     }
@@ -112,23 +121,29 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
     }
 
     public static void initColorArr(int[][][] arr){
-        //[color set number][frequency value][r/g/b]
+        //[color scheme number][frequency value][r/g/b]
+
+        //dark blue
         arr[0][1][0] = 0;
         arr[0][1][1] = 22;
         arr[0][1][2] = 216;
 
+        //medium blue
         arr[0][2][0] = 0;
         arr[0][2][1] = 100;
         arr[0][2][2] = 182;
 
+        //green
         arr[0][3][0] = 0;
         arr[0][3][1] = 200;
         arr[0][3][2] = 100;
 
+        //lime
         arr[0][4][0] = 183;
         arr[0][4][1] = 250;
         arr[0][4][2] = 0;
 
+        //yellow
         for (int i = 5; i < arr[0].length; i++) {
             arr[0][i][0] = 255;
             arr[0][i][1] = 255;
@@ -301,13 +316,13 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         return new Vector(Math.sin(a) * Math.cos(b), Math.sin(a) * Math.sin(b), -Math.cos(a));
     }
 
-    public static double boundAngle(double x) {
+    public static double boundAngle(double x) { //keeps angle in first quadrant
         x = Math.max(0, x);
         x = Math.min(x, 90);
         return x;
     }
     
-    public static double boundBAngle(double x) {
+    public static double boundBAngle(double x) { //keep angle between 0 and 360
         if(x<0)
             x+=360;
         if(x>=360)
@@ -317,7 +332,7 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         return x;
     }
 
-    public static int boundColor(double x) {
+    public static int boundColor(double x) { //keep color values between 0 and 255
         x += 0.5;
         x = Math.max(0, x);
         x = Math.min(x, 255);
@@ -468,6 +483,13 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         while(start >= System.currentTimeMillis() - delay); // do nothing
     }
 
+    /***
+     * A method used to simplify the shifting of points
+     * @param p The point to shift
+     * @param x The x offset
+     * @param y The y offset
+     * @return
+     */
     public static Point incrimentPoint(Point p, int x, int y){
         return new Point(p.X+x, p.Y+y);
     }
