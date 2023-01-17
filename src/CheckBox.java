@@ -30,8 +30,6 @@ public class CheckBox extends Button<Boolean>{
     public void draw(Graphics g) {
         int width = bottomRight.X - topLeft.X;
         int height = bottomRight.Y - topLeft.Y;
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setStroke(new BasicStroke(3));
         g.setColor(Color.WHITE);
         g.drawRect(topLeft.X, topLeft.Y, width, height);
         if (value) {
@@ -47,15 +45,6 @@ public class CheckBox extends Button<Boolean>{
         //             bottomRight.Y);
         //     g.drawLine(topLeft.X + width / 2 + 1, bottomRight.Y, bottomRight.X + width / 4 + 1, topLeft.Y - height / 4);
         // }
-    }
-
-    public void drawPlain(Graphics g) {
-        int width = bottomRight.X - topLeft.X;
-        int height = bottomRight.Y - topLeft.Y;
-        g.setColor(Color.LIGHT_GRAY);
-        if(value)
-            g.setColor(Color.DARK_GRAY);
-        g.fillRect(topLeft.X, topLeft.Y, width, height);
     }
 
 }

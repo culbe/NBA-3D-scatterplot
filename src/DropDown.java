@@ -3,6 +3,9 @@ import java.awt.Color;
 
 public class DropDown extends Button<Integer>{
 
+    //inherited Integer value
+    //abs(value) stores which option is selected, starting from 1
+    //if value<0, menu is closed
     int itemCount;
 
     public DropDown(Point topleft, Point bottomright, int count){
@@ -12,9 +15,15 @@ public class DropDown extends Button<Integer>{
         value = -1;
     }
 
-    //returns value after toggle is complete
+
+    
+    /***
+     * Switches between open and closed menu
+     * @return value after toggle is complete
+     */
     public int toggle(){
         value *=-1;
+        //change the dimensions so contains() can be used
         if(value>0){
             bottomRight.Y += (bottomRight.Y-topLeft.Y)*itemCount;
         }else{
@@ -23,6 +32,7 @@ public class DropDown extends Button<Integer>{
         return value;
     }
 
+    //Closes menu no matter what it is on
     public void close(){
         if(value>0){
             value *=-1;
@@ -63,21 +73,22 @@ public class DropDown extends Button<Integer>{
     }
 
     public int adjust(Point p){
-        if(this.contains(p)){
-            if(value<0){
+        if(this.contains(p)){ //point must be in the button
+            if(value<0){ //menu closed, open menu and return current value
                 toggle();
                 return value;
             }
-            int val = (int)((p.Y-topLeft.Y)/((bottomRight.Y-topLeft.Y)/(itemCount+1)));
-            if(val == 0){
+            //else menu was open, find new value
+            int val = (int)((p.Y-topLeft.Y)/((bottomRight.Y-topLeft.Y)/(itemCount+1))); //find value
+            if(val == 0){ //clicked button header
                 toggle();
                 return value;
             }else{
-                value = val;
+                value = val; //set value and return
                 return value;
             }
         }
-        close();
+        close(); //point not in button, close menu
         return value; 
     }
 

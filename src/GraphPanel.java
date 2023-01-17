@@ -22,18 +22,29 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
     static String state = "menu";
     static int mouseClickedX, mouseClickedY, mouseX, mouseY = 2000; //offscreen
     //buttons and boxes
-    static VerticalSlider slice = new VerticalSlider(new Point(0, 0), new Point(20, 200), 0, 100, 0);
-    static CheckBox toSlice = new CheckBox(new Point(30, 10), new Point(40, 20));
-    static CheckBox menuButton = new CheckBox(new Point(WIDTH/2-30, HEIGHT/2+30), new Point(WIDTH/2+30, HEIGHT/2+60));
-    static DropDown colorButton = new DropDown(new Point(WIDTH-90, 10), new Point(WIDTH-10,30), 2);
-    static CheckBox onePoint = new CheckBox(new Point(WIDTH-90, 40), new Point(WIDTH-80,50), true);
-    static CheckBox twoPoint = new CheckBox(new Point(WIDTH-70, 40), new Point(WIDTH-60,50), true);
-    static CheckBox threePoint = new CheckBox(new Point(WIDTH-50, 40), new Point(WIDTH-40,50), true);
-    static CheckBox fourPoint = new CheckBox(new Point(WIDTH-30, 40), new Point(WIDTH-20,50), true);
-    static CheckBox fivePoint = new CheckBox(new Point(WIDTH-10, 40), new Point(WIDTH,50), true);
+
+    static final Point SLICE_POINT = new Point(WIDTH/2-200, 10);
+    static HorizontalSlider slice = new HorizontalSlider(incrimentPoint(SLICE_POINT, 0, 20), incrimentPoint(SLICE_POINT, 200, 40), 0, 100, 0);
+    static CheckBox toSlice = new CheckBox(incrimentPoint(SLICE_POINT, 190, 0), incrimentPoint(SLICE_POINT, 200, 10));
+    
+    static final Point START_POINT = new Point(WIDTH/2-30, HEIGHT/2+30);
+    static final Point MENU_POINT = new Point(WIDTH-70, 10);
+    static SimpleButton menuButton = new SimpleButton(START_POINT, incrimentPoint(START_POINT, 60, 30), "Start");
+    
+    static final Point COLOR_POINT = new Point(WIDTH-270, 10);
+    static DropDown colorButton = new DropDown(COLOR_POINT, incrimentPoint(COLOR_POINT, 100, 20), 3);
+    
+    static final Point BOXES_START = new Point(WIDTH/2+150, 20);
+    static CheckBox onePoint = new CheckBox(BOXES_START, incrimentPoint(BOXES_START, 10, 10), true);
+    static CheckBox twoPoint = new CheckBox(incrimentPoint(BOXES_START, 20, 0), incrimentPoint(BOXES_START, 30, 10), true);
+    static CheckBox threePoint = new CheckBox(incrimentPoint(BOXES_START, 40, 0), incrimentPoint(BOXES_START, 50, 10), true);
+    static CheckBox fourPoint = new CheckBox(incrimentPoint(BOXES_START, 60, 0), incrimentPoint(BOXES_START, 70, 10), true);
+    static CheckBox fivePoint = new CheckBox(incrimentPoint(BOXES_START, 80, 0), incrimentPoint(BOXES_START, 90, 10), true);
     static CheckBox[] boxes = {onePoint, twoPoint, threePoint, fourPoint, fivePoint};
+    
     static final int OG_CENTERPOINT_SIZE = 8;
-    static Dragger centerPoint = new Dragger(new Point(250, 400), OG_CENTERPOINT_SIZE);
+    static final Point CENTER = new Point(250, 400); //origin
+    static Dragger centerPoint = new Dragger(CENTER, OG_CENTERPOINT_SIZE);
     //display variables
     static double aAngle = 45;
     static double aAngleStart;
@@ -42,10 +53,9 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
 
     static Vector xVector = makeXVector(aAngle, bAngle);
     static Vector yVector = makeYVector(aAngle, bAngle);
-    static final Point CENTER = new Point(250, 400); //origin
     static int[][][] stats = new int[30][60][100]; // assists, rebound, points
     static String playerName = "Lebron James"; //player to display
-    static int[][][] colorArr = new int[10][10][3]; //array containing color scheme information
+    static int[][][] colorArr = new int[10][6][3]; //array containing color scheme information
     static int colorNumber = 0; //number for color scheme option
 
     public GraphPanel() { //initalize panel
@@ -56,25 +66,15 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setStroke(new BasicStroke(3));
         g.setFont(new Font("Rockwell", Font.BOLD, 15));
-        g.drawString("state: " + state, 20, 100);
+        // g.drawString("state: " + state, 20, 100);
         if(!state.equals("menu")){
-     
-            slice.draw(g);
-            toSlice.draw(g);
-            for (CheckBox checkBox : boxes) {
-                checkBox.draw(g);
-            }
-            colorButton.drawColor(g, colorArr);
+            //draw axis
             drawAxis(g, centerPoint.topLeft);
             centerPoint.draw(g);
-
-
-            // g.drawString("X: " + xVector.toString(), 100, 20);
-            // g.drawString("Y: " + yVector.toString(), 100, 50);
-
-            g.drawString("" + slice.value.intValue(), 20, 210);
-            g.drawString(playerName, 300, 20);
+            //draw cubes
             int astOrder = Math.min((int)(Math.cos(bAngle*3.14159/180.0)+1),1); // one in the front 4 octants, zero elsewhere            
             int ptsOrder = (int)(Math.sin(bAngle*3.14159/180.0)+1); // zero in the left 4 octants, 1 elsewhere            
             for (int ast = stats.length-astOrder*stats.length-1+astOrder; (ast < stats.length && ast>=0); ast+=(2*astOrder-1)) {
@@ -85,97 +85,161 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
                     }
                 }
             }
+
+            if(astOrder==0){
+                //z axis
+                g.setColor(Color.WHITE);
+                int x3 = (int) (xVector.dotProduct(new Vector(0, 0, 0 + 300))) + centerPoint.topLeft.X;
+                int y3 = (int) (yVector.dotProduct(new Vector(0, 0, 0 + 300))) + centerPoint.topLeft.Y;
+                g.drawLine(centerPoint.topLeft.X, centerPoint.topLeft.Y, x3, y3);
+                g.drawString("Rebounds", x3, y3);
+            }
+
+            g.setColor(new Color(80,80,80));
+            g.fillRect(0, 0, WIDTH, 60);
+
+            slice.draw(g);
+            toSlice.draw(g);
+            for (CheckBox checkBox : boxes) {
+                checkBox.draw(g);
+            }
+            colorButton.drawColor(g, colorArr);
+            
+            g.setColor(Color.BLACK);
+            g.drawString("Drag to rotate graph", 10, 20);
+            g.drawString("Shift to plan around", 10, 40);
+            g.drawString("Displaying Player:", 200, 20);
+            g.drawString("" + playerName, 200, 40);
+            g.drawString("Filter by points", SLICE_POINT.X, SLICE_POINT.Y+10);
+            g.drawString("Frequency", BOXES_START.X, BOXES_START.Y-8);
+            g.drawString("1   2   3   4   5+", BOXES_START.X, BOXES_START.Y+30);
+            g.drawString("Select Color", COLOR_POINT.X, COLOR_POINT.Y+18);
         }else{
             g.setFont(new Font("Rockwell", Font.BOLD, 40));
             g.setColor(Color.BLACK);
             g.drawString("Welcome to NBA Career grapher!", WIDTH/2-300, 300);
             g.setFont(new Font("Rockwell", Font.BOLD, 15));
             g.drawString("menu", WIDTH/2, HEIGHT/2);
-            menuButton.drawPlain(g);
             g.setColor(Color.WHITE);
             g.fillRect(WIDTH/2-100, HEIGHT/2-15, 200, 30);
             g.setColor((Color.RED));
             g.setFont(new Font("Rockwell", Font.BOLD, 15));
             g.drawString(playerName, WIDTH/2-100, HEIGHT/2+10);
         }
+        menuButton.draw(g);
     }
 
-    public static void initArray(int[][][] arr, String name) {
+    /***
+     * Takes the text file of stats and turns it into the array
+     * @param arr
+     * @param name
+     */
+    public static int[][][] initArray(String name) {
         File f = new File("processed/" + InitStats.nameToID(name));
-        if (!f.exists()) {
+        if (!f.exists()) { //No existing file, make one
             String[] args = { name };
             InitStats.main(args);
         }
+        int[][][] arr = new int[30][60][100]; // assists, rebound, points
         try {
             Scanner s = new Scanner(f);
-            while (s.hasNextInt()) {
+            while (s.hasNextInt()) { //iterate over stats and increase array 
                 int pts = s.nextInt();
                 int trb = s.nextInt();
                 int ast = s.nextInt();
-                arr[ast][trb][pts]++;
+                if(arr[ast][trb][pts]<5)
+                    arr[ast][trb][pts]++;
             }
             s.close();
         } catch (Exception e) {
             System.out.println("Player data for " + name + " not created");
         }
+        return arr;
     }
-
+    
+    /**
+     * Sets the color schemes with hardcoded values
+     * @param arr 
+     */
     public static void initColorArr(int[][][] arr){
         //[color scheme number][frequency value][r/g/b]
-
-        //dark blue
-        arr[0][1][0] = 0;
-        arr[0][1][1] = 22;
-        arr[0][1][2] = 216;
-
+        
+        //Color scheme 1:
         //medium blue
+        arr[0][1][0] = 87;
+        arr[0][1][1] = 130;
+        arr[0][1][2] = 255;
+        //teal
         arr[0][2][0] = 0;
-        arr[0][2][1] = 100;
-        arr[0][2][2] = 182;
-
+        arr[0][2][1] = 129;
+        arr[0][2][2] = 125;
         //green
         arr[0][3][0] = 0;
-        arr[0][3][1] = 200;
-        arr[0][3][2] = 100;
-
-        //lime
-        arr[0][4][0] = 183;
-        arr[0][4][1] = 250;
-        arr[0][4][2] = 0;
-
+        arr[0][3][1] = 152;
+        arr[0][3][2] = 62;
         //yellow
-        for (int i = 5; i < arr[0].length; i++) {
-            arr[0][i][0] = 255;
-            arr[0][i][1] = 255;
-            arr[0][i][2] = 0;
-        }
+        arr[0][4][0] = 230;
+        arr[0][4][1] = 230;
+        arr[0][4][2] = 0;
+        //orange
+        arr[0][5][0] = 242;
+        arr[0][5][1] = 145;
+        arr[0][5][2] = 0;
         
-
+        //Color scheme 2:
+        //Dark red
         arr[1][1][0] = 102;
         arr[1][1][1] = 18;
         arr[1][1][2] = 0;
-
+        //medium red
         arr[1][2][0] = 186;
         arr[1][2][1] = 49;
         arr[1][2][2] = 5;
-
+        //dark orange
         arr[1][3][0] = 230;
         arr[1][3][1] = 119;
         arr[1][3][2] = 7;
-
+        //orange
         arr[1][4][0] = 250;
         arr[1][4][1] = 163;
         arr[1][4][2] = 6;
+        //dark yellow
+        arr[1][5][0] = 255;
+        arr[1][5][1] = 220;
+        arr[1][5][2] = 0;
 
-        for (int i = 5; i < arr[1].length; i++) {
-            arr[1][i][0] = 255;
-            arr[1][i][1] = 220;
-            arr[1][i][2] = 0;
-        }
-
+        //Color scheme 3:
+        //lavender
+        arr[2][1][0] = 184;
+        arr[2][1][1] = 137;
+        arr[2][1][2] = 255;
+        //dark lavender
+        arr[2][2][0] = 184;
+        arr[2][2][1] = 96;
+        arr[2][2][2] = 255;
+        //magenta
+        arr[2][3][0] = 200;
+        arr[2][3][1] = 0;
+        arr[2][3][2] = 234;
+        //red magenta
+        arr[2][4][0] = 208;
+        arr[2][4][1] = 0;
+        arr[2][4][2] = 122;
+        //dark red
+        arr[2][5][0] = 161;
+        arr[2][5][1] = 0;
+        arr[2][5][2] = 40;
+        
     }
 
+    /***
+     * Basis of the rendering, draws cubes from their position and the viewpoint angles
+     * @param g must pass Graphics object
+     * @param c The cube to draw
+     * @param center The origin point 
+     */
     public static void drawCube(Graphics g, Cube c, Point center) {
+        //must check that certain game frequencies have not been filtered out
         if (c.colorValue == 0) {
             return;
         }
@@ -195,18 +259,23 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
             return;
         }
 
+        //Get the color to draw the cube from the cube's cv and the color array
         int cv = c.colorValue;
         double red = colorArr[colorNumber][cv][0];
         double green = colorArr[colorNumber][cv][1];
         double blue = colorArr[colorNumber][cv][2];
         
+        //Scale out the cube from its 3D corner
         int X = c.corner.X * c.scale;
         int Y = c.corner.Y * c.scale;
         int Z = c.corner.Z * c.scale;
-        int[] xArr = new int[8];
-        int[] yArr = new int[8];
+        int[] xArr = new int[8]; //array for the xPos of all corners of cube in 2D
+        int[] yArr = new int[8]; //same for yPos
 
         for (int i = 0; i < yArr.length; i++) {
+            //Takes dot product of angle vector and each 3D corner to get the 2D position
+            //the division and mod are to get the offset for the corners
+            //The position of the origin is added on last
             xArr[i] = (int) (xVector
                     .dotProduct(new Vector(X + c.scale * (i / 4), Y + c.scale * ((i / 2) % 2), Z + c.scale * (i % 2)))
                     + center.X + 0.5);
@@ -216,6 +285,8 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         }
 
         Graphics2D g2d = (Graphics2D) g;
+
+        //each face of teh cube is a paralellogram defined by a path araound the vertices
 
         Path2D.Double parallelogram0;
         parallelogram0 = new Path2D.Double(); //top
@@ -279,27 +350,37 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         int yLength = 900;
         int zLength = 300;
 
-        int x0 = (int) (xVector.dotProduct(new Vector(0, 0, 0))) + center.X;
-        int y0 = (int) (yVector.dotProduct(new Vector(0, 0, 0))) + center.Y;
+        g.setColor(Color.WHITE);
 
+        //origin
+        int x0 = center.X;
+        int y0 = center.Y;
+        
+        //x axis
         int x1 = (int) (xVector.dotProduct(new Vector(0 + xLength, 0, 0))) + center.X;
         int y1 = (int) (yVector.dotProduct(new Vector(0 + xLength, 0, 0))) + center.Y;
-
+        g.drawLine(x0, y0, x1, y1);
+        g.drawString("Assists", x1, y1);
+        
+        //y axis
         int x2 = (int) (xVector.dotProduct(new Vector(0, 0 + yLength, 0))) + center.X;
         int y2 = (int) (yVector.dotProduct(new Vector(0, 0 + yLength, 0))) + center.Y;
+        g.drawLine(x0, y0, x2, y2);
+        g.drawString("Points", x2, y2);
 
+        //z axis
         int x3 = (int) (xVector.dotProduct(new Vector(0, 0, 0 + zLength))) + center.X;
         int y3 = (int) (yVector.dotProduct(new Vector(0, 0, 0 + zLength))) + center.Y;
-
-        g.setColor(Color.WHITE);
-        g.drawLine(x0, y0, x1, y1); // x
-        g.drawLine(x0, y0, x2, y2); // y
-        g.drawLine(x0, y0, x3, y3); // z
-        g.drawString("Assists", x1, y1); // x
-        g.drawString("Points", x2, y2); // y
-        g.drawString("Rebounds", x3, y3); // z
+        g.drawLine(x0, y0, x3, y3);
+        g.drawString("Rebounds", x3, y3);
     }
 
+    /***
+     * Creates a vector for calculating the xPos from the angles
+     * @param a
+     * @param b
+     * @return
+     */
     public static Vector makeXVector(double a, double b) {
         a /= 180;
         b /= 180;
@@ -308,6 +389,12 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         return new Vector(-Math.sin(b), Math.cos(b), 0);
     }
 
+    /***
+     * Creates a vector for calculating the yPos from the angles
+     * @param a
+     * @param b
+     * @return
+     */
     public static Vector makeYVector(double a, double b) {
         a /= 180;
         b /= 180;
@@ -355,30 +442,29 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
 
     @Override
     public void mousePressed(MouseEvent e) {
+        //update mouse positions
         mouseClickedX = e.getX() - 5;
         mouseClickedY = e.getY() - 30;
         mouseX = e.getX() - 5;
         mouseY = e.getY() - 30;
         aAngleStart = aAngle;
         bAngleStart = bAngle;
-        if(state.equals("menu")){
-            if(menuButton.contains(new Point(mouseClickedX, mouseClickedY))){
-                menuButton.toggle();
-                initArray(stats, playerName);
-                state = "run";
-                repaint();
-            }
+        if(menuButton.contains(new Point(mouseClickedX, mouseClickedY))){
+            toggleMenuButton();
             return;
         }
-        state = "adjust";
-        colorButton.adjust(new Point(mouseClickedX, mouseClickedY));
-        colorNumber = Math.abs(colorButton.value)-1;
-        if (slice.contains(new Point(mouseClickedX, mouseClickedY)) && toSlice.value) {
-            slice.setValue(new Point(mouseX, mouseY));
-        } else if(centerPoint.contains(new Point(mouseClickedX, mouseClickedY)) || centerPoint.value == OG_CENTERPOINT_SIZE*2){
-            centerPoint.value = OG_CENTERPOINT_SIZE*2;
-        }else {
-            state = "run";
+        if(state!="menu"){
+            colorButton.adjust(new Point(mouseClickedX, mouseClickedY));
+            colorNumber = Math.abs(colorButton.value)-1;
+            if (slice.contains(new Point(mouseClickedX, mouseClickedY)) && toSlice.value) {
+                state = "adjust slice";
+                slice.setValue(new Point(mouseX, mouseY));
+            } else if(centerPoint.contains(new Point(mouseClickedX, mouseClickedY)) || centerPoint.value == OG_CENTERPOINT_SIZE*2){
+                state = "adjust center";
+                centerPoint.value = OG_CENTERPOINT_SIZE*2;
+            }else {
+                state = "run";
+            }
         }
         repaint();
     }
@@ -392,30 +478,23 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         mouseY = e.getY() - 30;
         if(state.equals("menu")){
             return;
-        }else if (state.equals("adjust")) {
-            if (slice.contains(new Point(mouseX, mouseY))) {
-            // if (mouseY > slice.topLeft.Y && mouseY < slice.bottomRight.Y) {
-                slice.setValue(new Point(mouseX, mouseY));
-            }else if(centerPoint.value == OG_CENTERPOINT_SIZE*2){
-                centerPoint.topLeft = incrimentPoint(centerPoint.topLeft, mouseX-oldX, mouseY-oldY);
-                centerPoint.bottomRight = incrimentPoint(centerPoint.topLeft, OG_CENTERPOINT_SIZE, OG_CENTERPOINT_SIZE);
-            }
-            repaint();
+        }else if (state.equals("adjust slice")) {
+            slice.setValue(new Point(mouseX, mouseY));
+        }else if (state.equals("adjust center")) {
+            centerPoint.topLeft = incrimentPoint(centerPoint.topLeft, mouseX-oldX, mouseY-oldY);
+            centerPoint.bottomRight = incrimentPoint(centerPoint.topLeft, OG_CENTERPOINT_SIZE, OG_CENTERPOINT_SIZE);
         } else if (state.equals("run")) {
             aAngle = boundAngle(aAngleStart + (mouseY - mouseClickedY) / 10);
             bAngle = boundBAngle(bAngleStart + (mouseClickedX - mouseX) / 10);
             xVector = makeXVector(aAngle, bAngle);
             yVector = makeYVector(aAngle, bAngle);
-            repaint();
         }
+        repaint();
         
     }
     
     @Override
     public void mouseReleased(MouseEvent e) {
-        // if(state.equals("adjust")){
-        // repaint();
-        // }
         if(!state.equals("menu")){
             if(centerPoint.contains(new Point(mouseX-5, mouseY-5))){
                 centerPoint.value = OG_CENTERPOINT_SIZE;
@@ -453,17 +532,9 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
     @Override
     public void keyPressed(KeyEvent e) {  
         if(e.getKeyCode() == KeyEvent.VK_ENTER && state.equals("menu")){
-            String temp = playerName;
-            playerName = "Working..";
-            repaint();
-            System.out.println("Working...");
-            repaint();
-            initArray(stats, temp);
-            state = "run";
-            playerName = temp;
-            repaint();
+            toggleMenuButton();
         }else if(e.getKeyCode() == KeyEvent.VK_SHIFT && state.equals("run")){
-            state = "adjust";
+            state = "adjust center";
             centerPoint.value = OG_CENTERPOINT_SIZE*2;
             repaint();
         }
@@ -471,16 +542,11 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
 
     @Override
     public void keyReleased(KeyEvent e) {
-        if(e.getKeyCode() == KeyEvent.VK_SHIFT && state.equals("adjust")){
+        if(e.getKeyCode() == KeyEvent.VK_SHIFT && state.equals("adjust center")){
             state = "run";
             centerPoint.value = OG_CENTERPOINT_SIZE;
             repaint();
         }
-    }
-
-    public static void pause(int delay) {
-        long start = System.currentTimeMillis();
-        while(start >= System.currentTimeMillis() - delay); // do nothing
     }
 
     /***
@@ -493,4 +559,35 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
     public static Point incrimentPoint(Point p, int x, int y){
         return new Point(p.X+x, p.Y+y);
     }
+
+    public void toggleMenuButton(){
+        if(state.equals("menu")){
+            stats = initArray(playerName);
+            //reset globals
+            aAngle = 45;
+            bAngle = 20;
+            xVector = makeXVector(aAngle, bAngle);
+            yVector = makeYVector(aAngle, bAngle);
+            centerPoint.bottomRight = CENTER;
+            for (CheckBox checkBox : boxes) {
+                checkBox.value = true;
+            }
+            toSlice.value = false;
+            slice.value = 0.0;
+            state = "run";
+            //shift button to new position
+            menuButton.topLeft = MENU_POINT;
+            menuButton.bottomRight = incrimentPoint(MENU_POINT, 60, 30);
+            menuButton.value = "Menu";
+            repaint();
+        }else if(state.equals("run")){
+            state = "menu";
+            //shift button to new position
+            menuButton.topLeft = START_POINT;
+            menuButton.bottomRight = incrimentPoint(START_POINT, 60, 30);
+            menuButton.value = "Start";
+            repaint();
+        }
+    }
+
 }
