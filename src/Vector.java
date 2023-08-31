@@ -1,3 +1,5 @@
+import Points.Point3D;
+
 public class Vector {
 
     double X, Y, Z;
@@ -17,7 +19,7 @@ public class Vector {
     }
 
     public double dotProduct(Point3D p) {
-        return this.X * p.X + this.Y * p.Y + this.Z * p.Z;
+        return this.X * p.getX() + this.Y * p.getY() + this.Z * p.getZ();
     }
 
     public String toString(){

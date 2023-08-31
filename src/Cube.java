@@ -1,3 +1,4 @@
+import Points.Point3D;
 
 public class Cube {
 
@@ -26,15 +27,15 @@ public class Cube {
     }
 
     public double getX(){
-        return corner.X;
+        return corner.getX();
     }
 
     public double getY(){
-        return corner.Y;
+        return corner.getY();
     }
 
     public double getZ(){
-        return corner.Z;
+        return corner.getZ();
     }
 
     public Point3D getPoint(){

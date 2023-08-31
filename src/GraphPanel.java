@@ -2,6 +2,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import javax.swing.JPanel;
+
+import Buttons.*;
+import Points.Point;
+import Points.Point3D;
+
 import java.awt.event.*;
 import java.awt.geom.Path2D;
 import java.io.File;
@@ -73,7 +78,7 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         // g.drawString("state: " + state, 20, 100);
         if(!state.equals("menu")){
             //draw axis
-            drawAxis(g, centerPoint.topLeft);
+            drawAxis(g, centerPoint.getTopLeft());
             centerPoint.draw(g);
             //draw cubes
             int astOrder = Math.min((int)(Math.cos(bAngle*3.14159/180.0)+1),1); // one in the front 4 octants, zero elsewhere            
@@ -81,8 +86,8 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
             for (int ast = stats.length-astOrder*stats.length-1+astOrder; (ast < stats.length && ast>=0); ast+=(2*astOrder-1)) {
                 for (int tbr = 0; tbr < stats[0].length; tbr++) {
                     for (int pts = stats[0][0].length-ptsOrder*stats[0][0].length-1+ptsOrder; (pts < stats[0][0].length && pts>=0); pts+=(2*ptsOrder-1)) {
-                        if(!toSlice.value || pts == slice.value.intValue())
-                            drawCube(g, new Cube(new Point3D(ast, pts, tbr), stats[ast][tbr][pts]), centerPoint.topLeft);
+                        if(!toSlice.getValue() || pts == slice.getValue().intValue())
+                            drawCube(g, new Cube(new Point3D(ast, pts, tbr), stats[ast][tbr][pts]), centerPoint.getTopLeft());
                     }
                 }
             }
@@ -90,9 +95,9 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
             if(astOrder==0){
                 //z axis
                 g.setColor(Color.WHITE);
-                int x3 = (int) (xVector.dotProduct(new Vector(0, 0, 0 + 300))) + centerPoint.topLeft.X;
-                int y3 = (int) (yVector.dotProduct(new Vector(0, 0, 0 + 300))) + centerPoint.topLeft.Y;
-                g.drawLine(centerPoint.topLeft.X, centerPoint.topLeft.Y, x3, y3);
+                int x3 = (int) (xVector.dotProduct(new Vector(0, 0, 0 + 300))) + centerPoint.getTopLeft().getX();
+                int y3 = (int) (yVector.dotProduct(new Vector(0, 0, 0 + 300))) + centerPoint.getTopLeft().getY();
+                g.drawLine(centerPoint.getTopLeft().getX(), centerPoint.getTopLeft().getY(), x3, y3);
                 g.drawString("Rebounds", x3, y3);
             }
 
@@ -111,10 +116,10 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
             g.drawString("Shift to plan around", 10, 40);
             g.drawString("Displaying Player:", 200, 20);
             g.drawString("" + playerName, 200, 40);
-            g.drawString("Filter by points", SLICE_POINT.X, SLICE_POINT.Y+10);
-            g.drawString("Frequency", BOXES_START.X, BOXES_START.Y-8);
-            g.drawString("1   2   3   4   5+", BOXES_START.X, BOXES_START.Y+30);
-            g.drawString("Select Color", COLOR_POINT.X, COLOR_POINT.Y+18);
+            g.drawString("Filter by points", SLICE_POINT.getX(), SLICE_POINT.getY()+10);
+            g.drawString("Frequency", BOXES_START.getX(), BOXES_START.getY()-8);
+            g.drawString("1   2   3   4   5+", BOXES_START.getX(), BOXES_START.getY()+30);
+            g.drawString("Select Color", COLOR_POINT.getX(), COLOR_POINT.getY()+18);
         }else{ //State is menu
             g.setFont(new Font("Rockwell", Font.BOLD, 40));
             g.setColor(Color.BLACK);
@@ -246,19 +251,19 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         if (c.colorValue == 0) {
             return;
         }
-        if(c.colorValue==1 && !onePoint.value){
+        if(c.colorValue==1 && !onePoint.getValue()){
             return;
         }
-        if(c.colorValue==2 && !twoPoint.value){
+        if(c.colorValue==2 && !twoPoint.getValue()){
             return;
         }
-        if(c.colorValue==3 && !threePoint.value){
+        if(c.colorValue==3 && !threePoint.getValue()){
             return;
         }
-        if(c.colorValue==4 && !fourPoint.value){
+        if(c.colorValue==4 && !fourPoint.getValue()){
             return;
         }
-        if(c.colorValue>=5 && !fivePoint.value){
+        if(c.colorValue>=5 && !fivePoint.getValue()){
             return;
         }
 
@@ -269,9 +274,9 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         double blue = colorArr[colorNumber][cv][2];
         
         //Scale out the cube from its 3D corner
-        int X = c.corner.X * c.scale;
-        int Y = c.corner.Y * c.scale;
-        int Z = c.corner.Z * c.scale;
+        int X = c.corner.getX() * c.scale;
+        int Y = c.corner.getY() * c.scale;
+        int Z = c.corner.getZ() * c.scale;
         int[] xArr = new int[8]; //array for the xPos of all corners of cube in 2D
         int[] yArr = new int[8]; //same for yPos
 
@@ -281,10 +286,10 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
             //The position of the origin is added on last
             xArr[i] = (int) (xVector
                     .dotProduct(new Vector(X + c.scale * (i / 4), Y + c.scale * ((i / 2) % 2), Z + c.scale * (i % 2)))
-                    + center.X + 0.5);
+                    + center.getX() + 0.5);
             yArr[i] = (int) (yVector
                     .dotProduct(new Vector(X + c.scale * (i / 4), Y + c.scale * ((i / 2) % 2), Z + c.scale * (i % 2)))
-                    + center.Y + 0.5);
+                    + center.getY() + 0.5);
         }
 
         Graphics2D g2d = (Graphics2D) g;
@@ -361,24 +366,24 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         g.setColor(Color.WHITE);
 
         //origin
-        int x0 = center.X;
-        int y0 = center.Y;
+        int x0 = center.getX();
+        int y0 = center.getY();
         
         //x axis
-        int x1 = (int) (xVector.dotProduct(new Vector(0 + xLength, 0, 0))) + center.X;
-        int y1 = (int) (yVector.dotProduct(new Vector(0 + xLength, 0, 0))) + center.Y;
+        int x1 = (int) (xVector.dotProduct(new Vector(0 + xLength, 0, 0))) + center.getX();
+        int y1 = (int) (yVector.dotProduct(new Vector(0 + xLength, 0, 0))) + center.getY();
         g.drawLine(x0, y0, x1, y1);
         g.drawString("Assists", x1, y1);
         
         //y axis
-        int x2 = (int) (xVector.dotProduct(new Vector(0, 0 + yLength, 0))) + center.X;
-        int y2 = (int) (yVector.dotProduct(new Vector(0, 0 + yLength, 0))) + center.Y;
+        int x2 = (int) (xVector.dotProduct(new Vector(0, 0 + yLength, 0))) + center.getX();
+        int y2 = (int) (yVector.dotProduct(new Vector(0, 0 + yLength, 0))) + center.getY();
         g.drawLine(x0, y0, x2, y2);
         g.drawString("Points", x2, y2);
 
         //z axis
-        int x3 = (int) (xVector.dotProduct(new Vector(0, 0, 0 + zLength))) + center.X;
-        int y3 = (int) (yVector.dotProduct(new Vector(0, 0, 0 + zLength))) + center.Y;
+        int x3 = (int) (xVector.dotProduct(new Vector(0, 0, 0 + zLength))) + center.getX();
+        int y3 = (int) (yVector.dotProduct(new Vector(0, 0, 0 + zLength))) + center.getY();
         g.drawLine(x0, y0, x3, y3);
         g.drawString("Rebounds", x3, y3);
     }
@@ -481,13 +486,13 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         }
         if(!state.equals("menu")){ //not menu
             colorButton.adjust(new Point(mouseClickedX, mouseClickedY));
-            colorNumber = Math.abs(colorButton.value)-1;
-            if (slice.contains(new Point(mouseClickedX, mouseClickedY)) && toSlice.value) {
+            colorNumber = Math.abs(colorButton.getValue())-1;
+            if (slice.contains(new Point(mouseClickedX, mouseClickedY)) && toSlice.getValue()) {
                 state = "adjust slice";
                 slice.setValue(new Point(mouseX, mouseY));
-            } else if(centerPoint.contains(new Point(mouseClickedX, mouseClickedY)) || centerPoint.value == OG_CENTERPOINT_SIZE*2){
+            } else if(centerPoint.contains(new Point(mouseClickedX, mouseClickedY)) || centerPoint.getValue() == OG_CENTERPOINT_SIZE*2){
                 state = "adjust center";
-                centerPoint.value = OG_CENTERPOINT_SIZE*2;
+                centerPoint.setValue(OG_CENTERPOINT_SIZE*2);
             }else {
                 state = "run";
             }
@@ -507,8 +512,8 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         }else if (state.equals("adjust slice")) {
             slice.setValue(new Point(mouseX, mouseY));
         }else if (state.equals("adjust center")) {
-            centerPoint.topLeft = incrimentPoint(centerPoint.topLeft, mouseX-oldX, mouseY-oldY);
-            centerPoint.bottomRight = incrimentPoint(centerPoint.topLeft, OG_CENTERPOINT_SIZE, OG_CENTERPOINT_SIZE);
+            centerPoint.setTopLeft(incrimentPoint(centerPoint.getTopLeft(), mouseX-oldX, mouseY-oldY));
+            centerPoint.setBottomRight(incrimentPoint(centerPoint.getTopLeft(), OG_CENTERPOINT_SIZE, OG_CENTERPOINT_SIZE));
         } else if (state.equals("run")) {
             aAngle = boundAngle(aAngleStart + (mouseY - mouseClickedY) / 10);
             bAngle = boundBAngle(bAngleStart + (mouseClickedX - mouseX) / 10);
@@ -523,9 +528,9 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
     public void mouseReleased(MouseEvent e) {
         if(!state.equals("menu")){
             if(centerPoint.contains(new Point(mouseX-5, mouseY-5))){
-                centerPoint.value = OG_CENTERPOINT_SIZE;
+                centerPoint.setValue(OG_CENTERPOINT_SIZE);
             }
-            if(centerPoint.value==OG_CENTERPOINT_SIZE){
+            if(centerPoint.getValue()==OG_CENTERPOINT_SIZE){
                 state = "run";
             }
         }
@@ -563,7 +568,7 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         }else if(e.getKeyCode() == KeyEvent.VK_SHIFT && state.equals("run")){
             //start panning
             state = "adjust center";
-            centerPoint.value = OG_CENTERPOINT_SIZE*2;
+            centerPoint.setValue(OG_CENTERPOINT_SIZE*2);
             repaint();
         }
     }
@@ -573,7 +578,7 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
         if(e.getKeyCode() == KeyEvent.VK_SHIFT && state.equals("adjust center")){ 
             //Stop panning
             state = "run";
-            centerPoint.value = OG_CENTERPOINT_SIZE;
+            centerPoint.setValue(OG_CENTERPOINT_SIZE);
             repaint();
         }
     }
@@ -586,7 +591,7 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
      * @return shifted Point
      */
     public static Point incrimentPoint(Point p, int x, int y){
-        return new Point(p.X+x, p.Y+y);
+        return new Point(p.getX()+x, p.getY()+y);
     }
 
     /***
@@ -602,25 +607,25 @@ public class GraphPanel extends JPanel implements MouseListener, MouseMotionList
             bAngle = 20;
             xVector = makeXVector(aAngle, bAngle);
             yVector = makeYVector(aAngle, bAngle);
-            centerPoint.bottomRight = CENTER;
+            centerPoint.setBottomRight(CENTER);
             for (CheckBox checkBox : boxes) {
-                checkBox.value = true;
+                checkBox.setValue(true);
             }
-            toSlice.value = false;
-            slice.value = 0.0;
+            toSlice.setValue(false);
+            slice.setValue(0.0);
             colorButton.close();
             state = "run";
             //shift button to new position
-            menuButton.topLeft = MENU_POINT;
-            menuButton.bottomRight = incrimentPoint(MENU_POINT, 60, 30);
-            menuButton.value = "Menu";
+            menuButton.setTopLeft(MENU_POINT);
+            menuButton.setBottomRight(incrimentPoint(MENU_POINT, 60, 30));
+            menuButton.setValue("Menu");
             repaint();
         }else if(state.equals("run")){
             state = "menu";
             //shift button to new position
-            menuButton.topLeft = START_POINT;
-            menuButton.bottomRight = incrimentPoint(START_POINT, 60, 30);
-            menuButton.value = "Start";
+            menuButton.setTopLeft(START_POINT);
+            menuButton.setBottomRight(incrimentPoint(START_POINT, 60, 30));
+            menuButton.setValue("Start");
             repaint();
         }
     }

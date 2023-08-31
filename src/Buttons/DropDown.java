@@ -1,4 +1,8 @@
+package Buttons;
 import java.awt.Graphics;
+
+import Points.Point;
+
 import java.awt.Color;
 
 public class DropDown extends Button<Integer>{
@@ -25,9 +29,9 @@ public class DropDown extends Button<Integer>{
         value *=-1;
         //change the dimensions so contains() can be used
         if(value>0){
-            bottomRight.Y += (bottomRight.Y-topLeft.Y)*itemCount;
+            bottomRight.setY(bottomRight.getY() + (bottomRight.getY()-topLeft.getY())*itemCount);
         }else{
-            bottomRight.Y -= (bottomRight.Y-topLeft.Y)/(itemCount+1)*(itemCount);
+            bottomRight.setY(bottomRight.getY() - (bottomRight.getY()-topLeft.getY())/(itemCount+1)*(itemCount));
         }
         return value;
     }
@@ -36,37 +40,37 @@ public class DropDown extends Button<Integer>{
     public void close(){
         if(value>0){
             value *=-1;
-            bottomRight.Y -= (bottomRight.Y-topLeft.Y)/(itemCount+1)*(itemCount);
+            bottomRight.setY(bottomRight.getY() - (bottomRight.getY()-topLeft.getY())/(itemCount+1)*(itemCount));
         }
         return;
     }
 
     public void draw(Graphics g) {
-        int width = bottomRight.X - topLeft.X;
-        int height = bottomRight.Y - topLeft.Y;
+        int width = bottomRight.getX() - topLeft.getX();
+        int height = bottomRight.getY() - topLeft.getY();
         g.setColor(Color.WHITE);
-        g.fillRect(topLeft.X, topLeft.Y, width, height);
+        g.fillRect(topLeft.getX(), topLeft.getY(), width, height);
         if (value>0) {
-            height = (bottomRight.Y-topLeft.Y)/(itemCount+1);
+            height = (bottomRight.getY()-topLeft.getY())/(itemCount+1);
             for (int i = 1; i <= itemCount; i++) {
                 g.setColor(Color.BLACK);
-                g.drawRect(topLeft.X, topLeft.Y+i*height, width, height);
+                g.drawRect(topLeft.getX(), topLeft.getY()+i*height, width, height);
             }
         }
     }
 
     public void drawColor(Graphics g, int[][][] colorArr) {
-        int width = bottomRight.X - topLeft.X;
-        int height = bottomRight.Y - topLeft.Y;
+        int width = bottomRight.getX() - topLeft.getX();
+        int height = bottomRight.getY() - topLeft.getY();
         g.setColor(Color.WHITE);
-        g.fillRect(topLeft.X, topLeft.Y, width, height);
+        g.fillRect(topLeft.getX(), topLeft.getY(), width, height);
         if (value>0) {
-            height = (bottomRight.Y-topLeft.Y)/(itemCount+1);
+            height = (bottomRight.getY()-topLeft.getY())/(itemCount+1);
             width/=5;
             for (int i = 0; i < itemCount; i++) {
                 for (int j = 0; j < 5; j++) {
                     g.setColor(new Color(colorArr[i][j+1][0], colorArr[i][j+1][1], colorArr[i][j+1][2]));
-                    g.fillRect(topLeft.X+j*width, topLeft.Y+(i+1)*height, width, height);
+                    g.fillRect(topLeft.getX()+j*width, topLeft.getY()+(i+1)*height, width, height);
                 }
             }
         }
@@ -79,7 +83,7 @@ public class DropDown extends Button<Integer>{
                 return value;
             }
             //else menu was open, find new value
-            int val = (int)((p.Y-topLeft.Y)/((bottomRight.Y-topLeft.Y)/(itemCount+1))); //find value
+            int val = (int)((p.getY()-topLeft.getY())/((bottomRight.getY()-topLeft.getY())/(itemCount+1))); //find value
             if(val == 0){ //clicked button header
                 toggle();
                 return value;

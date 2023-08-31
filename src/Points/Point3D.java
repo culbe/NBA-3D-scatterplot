@@ -1,3 +1,4 @@
+package Points;
 public class Point3D extends Point{
 
     int Z;
@@ -10,6 +11,14 @@ public class Point3D extends Point{
         X = x;
         Y = y;
         Z = z;
+    }
+
+    public void setZ(int z){
+        Z = z;
+    }
+
+    public int getZ(){
+        return Z;
     }
 
 }

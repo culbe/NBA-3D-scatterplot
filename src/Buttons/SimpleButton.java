@@ -1,7 +1,10 @@
+package Buttons;
 // import java.awt.Graphics;
 // import java.awt.Graphics2D;
 // import java.awt.Color;
 import java.awt.*;
+
+import Points.Point;
 
 public class SimpleButton extends Button<String>{
 
@@ -22,12 +25,12 @@ public class SimpleButton extends Button<String>{
     }
 
     public void draw(Graphics g) {
-        int width = bottomRight.X - topLeft.X;
-        int height = bottomRight.Y - topLeft.Y;
+        int width = bottomRight.getX() - topLeft.getX();
+        int height = bottomRight.getY() - topLeft.getY();
         g.setColor(Color.LIGHT_GRAY);
-        g.fillRect(topLeft.X, topLeft.Y, width, height);
+        g.fillRect(topLeft.getX(), topLeft.getY(), width, height);
         g.setColor(Color.BLACK);
-        g.drawString(value, topLeft.X+10, bottomRight.Y-10);
+        g.drawString(value, topLeft.getX()+10, bottomRight.getY()-10);
     }
 
 }
