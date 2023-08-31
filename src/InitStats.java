@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
 
@@ -44,55 +43,54 @@ public class InitStats {
         }
 
         URL url;
-        InputStream is = null;
-        BufferedReader br;
+        InputStream inputStream = null;
+        BufferedReader bufferedReader;
         String line;
         try {
-            for (int i = 1990; i < 2023; i++) {
+            for (int i = 2003; i < 2023; i++) {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep((long)(Math.random()*500)+5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 url = new URL("https://www.basketball-reference.com/players/" + URLid + "/gamelog/" + i);
                 System.out.println("Getting url of year: " + url.toString());
-                is = url.openStream(); // throws an IOException
-                br = new BufferedReader(new InputStreamReader(is));
-                while ((line = br.readLine()) != null) {
+                inputStream = url.openStream(); // throws an IOException
+                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                while ((line = bufferedReader.readLine()) != null) {
                     if (line.substring(0, Math.min(line.length(), 20)).contains("<tr ")){
-                        Scanner s = new Scanner(line);
+                        Scanner scanner = new Scanner(line);
                         String l;
                         int trb, ast, pts;
-                        while (s.hasNext()) {
-                            l = s.next();
+                        while (scanner.hasNext()) {
+                            l = scanner.next();
                             if (l.contains("trb")) {
-                                l = s.next();
+                                l = scanner.next();
                                 trb = Integer.parseInt(l.substring(1, l.indexOf("<")));
-                                l = s.next();
-                                l = s.next();
-                                l = s.next();
-                                l = s.next();
+                                l = scanner.next();
+                                l = scanner.next();
+                                l = scanner.next();
+                                l = scanner.next();
                                 ast = Integer.parseInt(l.substring(1, l.indexOf("<")));
                                 for (int j = 0; j < 20; j++) {
-                                    l = s.next();
+                                    l = scanner.next();
                                 }
                                 pts = Integer.parseInt(l.substring(1, l.indexOf("<")));
                                 procWriter.print(pts + " " + trb + " " + ast + " ");
                             }
                         }
-                        s.close();
+                        scanner.close();
                     }
                 }
             }
             procWriter.close();
-        } catch (MalformedURLException mue) {
-            mue.printStackTrace();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+        } catch (Exception e) {
+            procWriter.close();
+            e.printStackTrace();
         } finally {
             try {
-                if (is != null)
-                    is.close();
+                if (inputStream != null)
+                    inputStream.close();
             } catch (IOException ioe) {
             }
         }
